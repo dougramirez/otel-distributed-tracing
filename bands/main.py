@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from uuid import UUID, uuid4
 
+import httpx
 from fastapi import FastAPI, Request
 from pydantic import BaseModel, Field
 
@@ -47,5 +48,17 @@ def get_band(request: Request, id: str):
 
         band_uuid = uuid.UUID(id)
         band = BandOut(uuid=band_uuid)
+
+        # Get the band's reviews
+        with tracer.start_as_current_span("get reviews"):
+            with httpx.Client() as client:
+                print(
+                    "calling http://127.0.0.1:8080/reviews?band_id=553be815-76f3-49db-b9d7-caca4b23cc3e..."
+                )
+                r = client.get(
+                    "http://127.0.0.1:8080/reviews?band_id=553be815-76f3-49db-b9d7-caca4b23cc3e",
+                    timeout=30.0,
+                )
+                print(r)
 
         return band

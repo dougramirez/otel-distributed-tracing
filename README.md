@@ -1,5 +1,10 @@
 # otel-distrbuted-tracing
 
+1. Start Jaeger in a Docker container
+2. Start the `bands` service
+3. Start the `reviews` service
+4. Hit a `bands` endpoint and see the traces in [Jaeger](http://localhost:16686/search)
+
 ## Setup
 ```sh
 python3 -m venv .venv
@@ -17,7 +22,7 @@ docker run --name jaeger \
   -p 16686:16686 \
   -p 4317:4317 \
   -p 4318:4318 \
-  jaegertracing/all-in-one:1.42.0
+  jaegertracing/all-in-one:latest
 ```
 
 Set the environment variable for the Collector:

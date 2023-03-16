@@ -1,5 +1,7 @@
 import uuid
 from datetime import datetime
+from random import randint, random
+from time import sleep
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, Request
@@ -32,17 +34,49 @@ class ReviewOut(ReviewBase):
 app = FastAPI()
 
 
+def get_by_band_id(band_id: UUID) -> list:
+    number_of_reviews = randint(1, 20)
+
+    reviews = []
+    if band_id == "553be815-76f3-49db-b9d7-caca4b23cc3e":
+        for i in range(number_of_reviews):
+            sleep(random())
+            reviews.append(
+                ReviewOut(
+                    result=ReviewResult(
+                        body=f"This is the review {i + 1} of {number_of_reviews} for this band."
+                    )
+                )
+            )
+
+    return reviews
+
+
 @app.get("/health")
 def health():
     with tracer.start_as_current_span("/health"):
         logger.info("/health has been called")
 
-    return {"status": "ok"}
+        return {"status": "ok"}
 
 
 @app.get("/reviews/{id}", response_model=ReviewOut)
-def get_trace(request: Request, id: str):
-    review_uuid = uuid.UUID(id)
-    review = ReviewOut(uuid=review_uuid)
+def get_review(request: Request, id: str):
+    with tracer.start_as_current_span("/reviews/{id}"):
+        logger.info("/reviews/{id} has been called")
 
-    return review
+        review_uuid = uuid.UUID(id)
+        review = ReviewOut(uuid=review_uuid)
+
+        return review
+
+
+@app.get("/reviews", response_model=list[ReviewOut])
+def get_reviews(band_id: str):
+    with tracer.start_as_current_span("/reviews?band_id"):
+        logger.info("/reviews?band_id has been called")
+
+        with tracer.start_as_current_span("get reviews by band_id"):
+            reviews = get_by_band_id(band_id)
+
+        return reviews
