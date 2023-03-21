@@ -5,6 +5,7 @@ from time import sleep
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, Request
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from pydantic import BaseModel, Field
 
 from otel.common import configure_logger, configure_tracer
@@ -72,11 +73,15 @@ def get_review(request: Request, id: str):
 
 
 @app.get("/reviews", response_model=list[ReviewOut])
-def get_reviews(band_id: str):
-    with tracer.start_as_current_span("/reviews?band_id"):
+def get_reviews(request: Request, band_id: str):
+    traceparent = request.headers.get("traceparent")
+    carrier = {"traceparent": traceparent}
+    trace_context = TraceContextTextMapPropagator().extract(carrier)
+
+    with tracer.start_as_current_span("/reviews?band_id", context=trace_context):
         logger.info("/reviews?band_id has been called")
 
         with tracer.start_as_current_span("get reviews by band_id"):
             reviews = get_by_band_id(band_id)
 
-        return reviews
+            return reviews

@@ -4,9 +4,12 @@ from uuid import UUID, uuid4
 
 import httpx
 from fastapi import FastAPI, Request
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from pydantic import BaseModel, Field
 
 from otel.common import configure_logger, configure_tracer
+
+REVIEWS_API = "http://127.0.0.1:8080"
 
 logger = configure_logger("bands-api", "1.0.0")
 tracer = configure_tracer("bands-api", "1.0.0")
@@ -28,6 +31,7 @@ class BandIn(BaseModel):
 class BandOut(BandBase):
     succeeded_at: datetime | None = datetime.now()
     result: BandResult | None = BandResult()
+    reviews: list | None = []
 
 
 app = FastAPI()
@@ -38,7 +42,7 @@ def health():
     with tracer.start_as_current_span("/health"):
         logger.info("/health has been called")
 
-    return {"status": "ok"}
+        return {"status": "ok"}
 
 
 @app.get("/bands/{id}", response_model=BandOut)
@@ -51,14 +55,17 @@ def get_band(request: Request, id: str):
 
         # Get the band's reviews
         with tracer.start_as_current_span("get reviews"):
+            carrier = {}
+            TraceContextTextMapPropagator().inject(carrier)
+            headers = {"traceparent": carrier["traceparent"]}
             with httpx.Client() as client:
-                print(
-                    "calling http://127.0.0.1:8080/reviews?band_id=553be815-76f3-49db-b9d7-caca4b23cc3e..."
-                )
-                r = client.get(
-                    "http://127.0.0.1:8080/reviews?band_id=553be815-76f3-49db-b9d7-caca4b23cc3e",
+                reviews = client.get(
+                    f"{REVIEWS_API}/reviews?band_id={id}",
                     timeout=30.0,
+                    headers=headers,
                 )
-                print(r)
 
-        return band
+                if reviews:
+                    band.reviews = reviews.json()
+
+            return band
