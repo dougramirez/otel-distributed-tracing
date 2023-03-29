@@ -1,5 +1,16 @@
 # otel-distrbuted-tracing
 
+## Resources
+https://www.w3.org/TR/trace-context/
+
+## Notes
+
+`trace-id`
+- [Globally Unique](https://www.w3.org/TR/trace-context/#uniqueness-of-trace-id)
+- [Random](https://www.w3.org/TR/trace-context/#randomness-of-trace-id)
+
+## Quickstart
+
 1. Start Jaeger in a Docker container
 2. Start the `bands` service
 3. Start the `reviews` service

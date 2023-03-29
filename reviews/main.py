@@ -8,31 +8,17 @@ from fastapi import FastAPI, Request
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from pydantic import BaseModel, Field
 
-from otel.common import configure_logger, configure_tracer
+from otel.common import configure_tracer
 
-logger = configure_logger("reviews-api", "1.0.0")
 tracer = configure_tracer("reviews-api", "1.0.0")
 
-
-class ReviewBase(BaseModel):
-    uuid: UUID | None = uuid4()
-    created: datetime | None = datetime.now()
-
-
-class ReviewResult(BaseModel):
-    body: str | None = "I am a review."
-
-
-class ReviewIn(BaseModel):
-    body: str | None = Field(default=None, example="I am a review.")
-
-
-class ReviewOut(ReviewBase):
-    succeeded_at: datetime | None = datetime.now()
-    result: ReviewResult | None = ReviewResult()
-
-
 app = FastAPI()
+
+
+class Review(BaseModel):
+    uuid: UUID | None = uuid4()
+    body: str | None = "I am a review."
+    created: datetime | None = datetime.now()
 
 
 def get_by_band_id(band_id: UUID) -> list:
@@ -43,8 +29,8 @@ def get_by_band_id(band_id: UUID) -> list:
         for i in range(number_of_reviews):
             sleep(random())
             reviews.append(
-                ReviewOut(
-                    result=ReviewResult(
+                Review(
+                    result=Review(
                         body=f"This is the review {i + 1} of {number_of_reviews} for this band."
                     )
                 )
@@ -54,33 +40,21 @@ def get_by_band_id(band_id: UUID) -> list:
 
 
 @app.get("/health")
-def health():
-    with tracer.start_as_current_span("GET /health"):
-        logger.info("/health has been called")
-
+def health(request: Request):
+    traceparent = request.headers.get("traceparent")
+    carrier = {"traceparent": traceparent}
+    trace_context = TraceContextTextMapPropagator().extract(carrier)
+    with tracer.start_as_current_span("GET /health", context=trace_context):
         return {"status": "ok"}
 
 
-@app.get("/reviews/{id}", response_model=ReviewOut)
-def get_review(request: Request, id: str):
-    with tracer.start_as_current_span("GET /reviews/:id"):
-        logger.info("/reviews/{id} has been called")
-
-        review_uuid = uuid.UUID(id)
-        review = ReviewOut(uuid=review_uuid)
-
-        return review
-
-
-@app.get("/reviews", response_model=list[ReviewOut])
+@app.get("/reviews", response_model=list[Review])
 def get_reviews(request: Request, band_id: str):
     traceparent = request.headers.get("traceparent")
     carrier = {"traceparent": traceparent}
     trace_context = TraceContextTextMapPropagator().extract(carrier)
 
     with tracer.start_as_current_span("GET /reviews?:band_id", context=trace_context):
-        logger.info("/reviews?band_id has been called")
-
         with tracer.start_as_current_span("get_by_band_id"):
             reviews = get_by_band_id(band_id)
 
