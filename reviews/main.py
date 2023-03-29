@@ -55,7 +55,7 @@ def get_by_band_id(band_id: UUID) -> list:
 
 @app.get("/health")
 def health():
-    with tracer.start_as_current_span("/health"):
+    with tracer.start_as_current_span("GET /health"):
         logger.info("/health has been called")
 
         return {"status": "ok"}
@@ -63,7 +63,7 @@ def health():
 
 @app.get("/reviews/{id}", response_model=ReviewOut)
 def get_review(request: Request, id: str):
-    with tracer.start_as_current_span("/reviews/{id}"):
+    with tracer.start_as_current_span("GET /reviews/:id"):
         logger.info("/reviews/{id} has been called")
 
         review_uuid = uuid.UUID(id)
@@ -78,10 +78,10 @@ def get_reviews(request: Request, band_id: str):
     carrier = {"traceparent": traceparent}
     trace_context = TraceContextTextMapPropagator().extract(carrier)
 
-    with tracer.start_as_current_span("/reviews?band_id", context=trace_context):
+    with tracer.start_as_current_span("GET /reviews?:band_id", context=trace_context):
         logger.info("/reviews?band_id has been called")
 
-        with tracer.start_as_current_span("get reviews by band_id"):
+        with tracer.start_as_current_span("get_by_band_id"):
             reviews = get_by_band_id(band_id)
 
             return reviews

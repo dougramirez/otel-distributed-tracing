@@ -38,8 +38,16 @@ app = FastAPI()
 
 
 @app.get("/health")
-def health():
-    with tracer.start_as_current_span("/health"):
+def health(
+    request: Request,
+):
+    traceparent = request.headers.get("traceparent")
+    print(f"traceparent: {traceparent}")
+    carrier = {"traceparent": traceparent}
+    trace_context = TraceContextTextMapPropagator().extract(carrier)
+    print(trace_context)
+
+    with tracer.start_as_current_span("GET /health", context=trace_context):
         logger.info("/health has been called")
 
         return {"status": "ok"}
@@ -47,22 +55,22 @@ def health():
 
 @app.get("/bands/{id}", response_model=BandOut)
 def get_band(request: Request, id: str):
-    with tracer.start_as_current_span("/bands/{id}"):
+    with tracer.start_as_current_span("GET /bands/:id"):
         logger.info("/bands/{id} has been called")
 
         band_uuid = uuid.UUID(id)
         band = BandOut(uuid=band_uuid)
 
         # Get the band's reviews
-        with tracer.start_as_current_span("get reviews"):
-            carrier = {}
-            TraceContextTextMapPropagator().inject(carrier)
-            headers = {"traceparent": carrier["traceparent"]}
+        with tracer.start_as_current_span("get_reviews"):
+            # carrier = {}
+            # TraceContextTextMapPropagator().inject(carrier)
+            # headers = {"traceparent": carrier["traceparent"]}
             with httpx.Client() as client:
                 reviews = client.get(
                     f"{REVIEWS_API}/reviews?band_id={id}",
                     timeout=30.0,
-                    headers=headers,
+                    # headers=headers,
                 )
 
                 if reviews:
