@@ -1,13 +1,23 @@
 # otel-distrbuted-tracing
 
-## Resources
-https://www.w3.org/TR/trace-context/
+## Goals
 
-## Notes
+- Understand distributed tracing and context propagation concepts
+- Know there is a W3C recommendation
+- See a minimal example of distributed tracing in action
+- Be aware of security implications
 
-`trace-id`
-- [Globally Unique](https://www.w3.org/TR/trace-context/#uniqueness-of-trace-id)
-- [Random](https://www.w3.org/TR/trace-context/#randomness-of-trace-id)
+1. What is distrubuted tracing?
+2. What is context propagation?
+3. What are the elements of a trace context?
+   1. traceparent
+      1. `trace-id`
+         1. [Globally Unique](https://www.w3.org/TR/trace-context/#uniqueness-of-trace-id)
+         2. [Random](https://www.w3.org/TR/trace-context/#randomness-of-trace-id)
+      2. `span-id`
+      3. `parent-id`
+   2. tracestate
+4. Returning `trace-id`
 
 ## Quickstart
 
