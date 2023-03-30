@@ -42,18 +42,38 @@ The `traceparent` header is made up of four fields separated by a `-`:
    1. An 8 byte array
 4. `trace-flags`
 
-Here's an example of a `traceparent`:
+Here's an example of a `traceparent` header:
 
 ```sh
-00-82d7195881bcb9de88498cfd59d9a6f7-cd713b8ff16363f4-01
+traceparent: 00-82d7195881bcb9de88498cfd59d9a6f7-cd713b8ff16363f4-01
 ```
 
-## Quickstart
+### `tracestate`
 
-1. Start Jaeger in a Docker container
-2. Start the `bands` service
-3. Start the `reviews` service
-4. Hit a `bands` endpoint and see the traces in [Jaeger](http://localhost:16686/search)
+The `tracestate` header provides a mechanism to share additional information about a trace.  It's simply a list of key/value pairs.
+
+Here's an example of a `tracestate` header:
+
+```sh
+tracestate: foo=bar
+```
+
+### Privacy
+
+Please familiarize yourself with the W3C's [Privacy Considerations](https://www.w3.org/TR/trace-context/#privacy-considerations).
+
+## Demo
+
+1. Start the services
+2. Make a call
+3. Add tracing to `bands-api`
+4. Make a call
+5. Add tracing to `reviews-api`
+6. Make a call
+7. Add Context Propagation to caller
+8. Make a call
+9. Debug performance issue
+10. Make a call
 
 ## Setup
 
@@ -70,54 +90,36 @@ pip3 install opentelemetry-exporter-otlp-proto-grpc
 pip3 install httpx
 ```
 
+### Jaeger
+
 Start Jaeger
+
 ```sh
 docker run --name jaeger \
   -e COLLECTOR_OTLP_ENABLED=true \
   -p 16686:16686 \
   -p 4317:4317 \
   -p 4318:4318 \
-  jaegertracing/all-in-one:1.42
+  jaegertracing/all-in-one:latest
 ```
 
-Set the environment variable for the Collector:
-```sh
-export OTEL_EXPORTER_OTLP_ENDPOINT="0.0.0.0:4317"
-```
+### `bands-api`
 
-## Bands
+Start `bands-api`
 
-Start the bands service
 ```sh
 uvicorn bands.main:app --reload --port 8000
 ```
 
-Make sure the bands service running
-```sh
-curl -w '\n' 127.0.0.1:8000/health
-{"status":"ok"}
-```
+### `reviews-api`
 
-Get a band
-```sh
-curl -w '\n' 127.0.0.1:8000/bands/553be815-76f3-49db-b9d7-caca4b23cc3e
-{"uuid":"553be815-76f3-49db-b9d7-caca4b23cc3e","created":"2023-03-02T08:13:28.502366","succeeded_at":"2023-03-02T08:13:28.502873","result":{"name":"Fugazi"}}
-```
+Start `reviews-api`
 
-## Reviews
-
-Start the reviews service
 ```sh
 uvicorn reviews.main:app --reload --port 8080
 ```
 
-Make sure the reviews service running
-```sh
-curl -w '\n' 127.0.0.1:8080/health
-{"status":"ok"}
-```
-
-Get a review
+### Get a band and its reviews
 ```sh
 curl -w '\n' 127.0.0.1:8080/reviews/553be815-76f3-49db-b9d7-caca4b23cc3e
 {"uuid":"553be815-76f3-49db-b9d7-caca4b23cc3e","created":"2023-03-02T08:22:57.546341","succeeded_at":"2023-03-02T08:22:57.546772","result":{"body":"I am a review."}}
@@ -125,6 +127,6 @@ curl -w '\n' 127.0.0.1:8080/reviews/553be815-76f3-49db-b9d7-caca4b23cc3e
 
 ## Resources
 
-https://opentelemetry.io
-https://www.w3.org/TR/trace-context
-https://www.jaegertracing.io
+- [OpenTelemetry](https://opentelemetry.io)
+- [W3C Trace Context](https://www.w3.org/TR/trace-context)
+- [Jaeger](https://www.jaegertracing.io)

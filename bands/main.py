@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from time import sleep
 from uuid import UUID, uuid4
 
 import httpx
@@ -21,11 +22,16 @@ class Band(BaseModel):
     created: datetime | None = datetime.now()
 
 
+def debugging():
+    sleep(5)
+
+
 def get_reviews(band_id: str) -> list:
     with tracer.start_as_current_span("get_reviews"):
         carrier = {}
         TraceContextTextMapPropagator().inject(carrier)
         headers = carrier
+        debugging()
         with httpx.Client() as client:
             reviews = client.get(
                 f"http://127.0.0.1:8080/reviews?band_id={band_id}",
