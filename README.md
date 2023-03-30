@@ -67,12 +67,12 @@ Please familiarize yourself with the W3C's [Privacy Considerations](https://www.
 1. Start the services
 2. Make a call
 3. Add tracing to `bands-api`
-4. Make a call
-5. Add tracing to `reviews-api`
-6. Make a call
-7. Add Context Propagation to caller
-8. Make a call
-9. Debug performance issue
+4. Add Context Propagation to caller
+5. Make a call
+6. Add tracing to `reviews-api`
+7. Make a call
+8. Debug performance issue
+9.  Fix bugs
 10. Make a call
 
 ## Setup
