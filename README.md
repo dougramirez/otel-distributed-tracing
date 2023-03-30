@@ -75,6 +75,12 @@ Please familiarize yourself with the W3C's [Privacy Considerations](https://www.
 9.  Fix bugs
 10. Make a call
 
+## Next Steps
+- Add code comments to explain what the OTel SDK is doing
+- Add `trace-id` to Response header
+- Add `tracestate` to demo
+- Add trace log correlation
+
 ## Setup
 
 ```sh
