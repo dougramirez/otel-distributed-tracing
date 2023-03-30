@@ -76,6 +76,7 @@ Please familiarize yourself with the W3C's [Privacy Considerations](https://www.
 10. Make a call
 
 ## Next Steps
+- Test the documentation
 - Add code comments to explain what the OTel SDK is doing
 - Add `trace-id` to Response header
 - Add `tracestate` to demo
@@ -127,8 +128,30 @@ uvicorn reviews.main:app --reload --port 8080
 
 ### Get a band and its reviews
 ```sh
-curl -w '\n' 127.0.0.1:8080/reviews/553be815-76f3-49db-b9d7-caca4b23cc3e
-{"uuid":"553be815-76f3-49db-b9d7-caca4b23cc3e","created":"2023-03-02T08:22:57.546341","succeeded_at":"2023-03-02T08:22:57.546772","result":{"body":"I am a review."}}
+python3 run.py   
+{
+    "uuid": "553be815-76f3-49db-b9d7-caca4b23cc3e",
+    "name": "Fugazi",
+    "reviews": [
+        {
+            "uuid": "ff8e9267-0b4d-47fa-abc7-4f112c533186",
+            "body": "This is the review 1 of 3 for this band.",
+            "created": "2023-03-30T10:33:58.886900"
+        },
+        {
+            "uuid": "ff8e9267-0b4d-47fa-abc7-4f112c533186",
+            "body": "This is the review 2 of 3 for this band.",
+            "created": "2023-03-30T10:33:58.886900"
+        },
+        {
+            "uuid": "ff8e9267-0b4d-47fa-abc7-4f112c533186",
+            "body": "This is the review 3 of 3 for this band.",
+            "created": "2023-03-30T10:33:58.886900"
+        }
+    ],
+    "created": "2023-03-30T10:33:58.897368"
+}
+http://localhost:16686/trace/46d714dca76ce65b8b13881cf7b1488a
 ```
 
 ## Resources
