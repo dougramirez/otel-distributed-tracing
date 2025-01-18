@@ -29,9 +29,7 @@ def get_reviews_by_band_id(band_id: UUID) -> list:
             for i in range(number_of_reviews):
                 sleep(random())
                 reviews.append(
-                    Review(
-                        body=f"This is the review {i + 1} of {number_of_reviews} for this band."
-                    )
+                    Review(body=f"This is review {i + 1} of {number_of_reviews}.")
                 )
 
     return reviews

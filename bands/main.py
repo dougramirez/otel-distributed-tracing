@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import httpx
 from fastapi import FastAPI, Request
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from otel.common import configure_tracer
 
