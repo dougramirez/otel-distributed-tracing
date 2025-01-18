@@ -93,7 +93,7 @@ Instructions for installing SigNoz in your local Docker environment can be found
 
 ## Run
 
-After you have an SigNoz running, execute the `run.sh` script.  It will start the `bands` and `reviews` services, run the client app, and then shutdown the `bands` and `reviews` services.
+After you have SigNoz running, execute the `run.sh` script.  It will start the `bands` and `reviews` services, run the client app, and then shutdown the `bands` and `reviews` services.
 
 You can also run start the services and run the client app manually.
 
