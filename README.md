@@ -62,19 +62,6 @@ tracestate: foo=bar
 
 Please familiarize yourself with the W3C's [Privacy Considerations](https://www.w3.org/TR/trace-context/#privacy-considerations).
 
-## Demo
-
-1. Start the services
-2. Make a call
-3. Add tracing to `bands-api`
-4. Add Context Propagation to caller
-5. Make a call
-6. Add tracing to `reviews-api`
-7. Make a call
-8. Debug performance issue
-9.  Fix bugs
-10. Make a call
-
 ## Next Steps
 - Test the documentation
 - Add code comments to explain what the OTel SDK is doing
@@ -83,6 +70,8 @@ Please familiarize yourself with the W3C's [Privacy Considerations](https://www.
 - Add trace log correlation
 
 ## Setup
+
+Make sure you have Docker installed as that will be needed to host an APM, such as SigNoz.
 
 ```sh
 python3 -m venv .venv
@@ -97,18 +86,16 @@ pip3 install opentelemetry-exporter-otlp-proto-grpc
 pip3 install httpx
 ```
 
-### Jaeger
+### SigNoz
 
-Start Jaeger
+Instructions for installing SigNoz in your local Docker environment can be found here: https://signoz.io/docs/install/docker/
 
-```sh
-docker run --name jaeger \
-  -e COLLECTOR_OTLP_ENABLED=true \
-  -p 16686:16686 \
-  -p 4317:4317 \
-  -p 4318:4318 \
-  jaegertracing/all-in-one:latest
-```
+
+## Run
+
+After you have SigNoz running, execute the `run.sh` script.  It will start the `bands` and `reviews` services, run the client app, and then shutdown the `bands` and `reviews` services.
+
+You can also start the services and run the client app manually.
 
 ### `bands-api`
 
@@ -126,7 +113,8 @@ Start `reviews-api`
 uvicorn reviews.main:app --reload --port 8080
 ```
 
-### Get a band and its reviews
+### client
+
 ```sh
 python3 run.py   
 {
@@ -151,11 +139,15 @@ python3 run.py
     ],
     "created": "2023-03-30T10:33:58.897368"
 }
-http://localhost:16686/trace/46d714dca76ce65b8b13881cf7b1488a
+http://localhost:3301/trace/e08f687976302f1418341e250c5532a2
 ```
+
+If everything is working properly the link will load the trace details in SigNoz.
+
+![SigNoz Trace Details](signoz.png)
 
 ## Resources
 
 - [OpenTelemetry](https://opentelemetry.io)
 - [W3C Trace Context](https://www.w3.org/TR/trace-context)
-- [Jaeger](https://www.jaegertracing.io)
+- [SigNoz](https://signoz.io)
