@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from random import randint, random
 from time import sleep
@@ -7,8 +8,10 @@ from fastapi import FastAPI, Request
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from pydantic import BaseModel
 
-from otel.common import configure_tracer
+from otel.common import configure_logger, configure_tracer
 
+logger = configure_logger("bands-api", "1.0.0")
+logger.setLevel(logging.DEBUG)
 tracer = configure_tracer("reviews-api", "1.0.0")
 
 app = FastAPI()
@@ -41,6 +44,8 @@ def get_reviews(request: Request, band_id: str):
     carrier = {"traceparent": traceparent}
     trace_context = TraceContextTextMapPropagator().extract(carrier)
     with tracer.start_as_current_span("GET /reviews?:band_id", context=trace_context):
+        logger.info("reviews service is getting reviews from local database")
         reviews = get_reviews_by_band_id(band_id)
+        logger.info("reviews service got reviews from local database")
 
     return reviews
