@@ -4,7 +4,8 @@
 
 1. Introduce Distributed Tracing and Context Propagation concepts
 2. See a minimal example of Distributed Tracing in action
-3. Share some resources to learn more about Distributed Tracing
+3. See an example of Trace Log Correlation in action
+4. Share some resources to learn more about Distributed Tracing
 
 ## Concepts
 
@@ -21,6 +22,8 @@
   - A `trace-id` should be [globally unique](https://www.w3.org/TR/trace-context/#uniqueness-of-trace-id) and [random](https://www.w3.org/TR/trace-context/#randomness-of-trace-id).
 - What is Trace Context?
   - Trace Context provides a specification so that services have a mutually agreed upon format for sharing traces across service boundaries.
+- What is Trace Log Correlation?
+  - Trace log correlation is the process of combining trace data with log data to gain a better understanding of system behavior.
 
 ## W3C Recommendation
 
@@ -145,6 +148,10 @@ http://localhost:3301/trace/e08f687976302f1418341e250c5532a2
 If everything is working properly the link will load the trace details in SigNoz.
 
 ![SigNoz Trace Details](signoz.png)
+
+In SigNoz, select the parent trace and then click on the `Go to Related logs` button to see logs from all 3 services.
+
+![SigNoz Trace Log Correlation](signoz_logs.png)
 
 ## Resources
 
