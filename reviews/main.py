@@ -8,10 +8,12 @@ from fastapi import FastAPI, Request
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from pydantic import BaseModel
 
-from otel.common import configure_logger, configure_tracer
+from otel.common import configure_logger, configure_meter, configure_tracer
 
-logger = configure_logger("bands-api", "1.0.0")
+logger = configure_logger("reviews-api", "1.0.0")
 logger.setLevel(logging.DEBUG)
+meter = configure_meter("reviews-api", "1.0.0")
+counter = meter.create_up_down_counter("reviews_fetched_counter")
 tracer = configure_tracer("reviews-api", "1.0.0")
 
 app = FastAPI()
@@ -34,6 +36,8 @@ def get_reviews_by_band_id(band_id: UUID) -> list:
                 reviews.append(
                     Review(body=f"This is review {i + 1} of {number_of_reviews}.")
                 )
+
+        counter.add(number_of_reviews)
 
     return reviews
 
