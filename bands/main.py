@@ -5,7 +5,7 @@ from time import sleep
 from uuid import UUID, uuid4
 
 import httpx
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from pydantic import BaseModel
 
@@ -26,6 +26,7 @@ class Band(BaseModel):
 
 
 def debugging():
+    logger.debug("bands service debugging() method called")
     sleep(5)
 
 
@@ -48,15 +49,19 @@ def get_reviews(band_id: str) -> list:
 
 
 @app.get("/bands/{id}", response_model=Band)
-def get_band(request: Request, id: str):
+def get_band(request: Request, id: str, response: Response):
     traceparent = request.headers.get("traceparent")
     carrier = {"traceparent": traceparent}
     trace_context = TraceContextTextMapPropagator().extract(carrier)
-    with tracer.start_as_current_span("GET /bands/:id", context=trace_context):
+    with tracer.start_as_current_span("GET /bands/:id", context=trace_context) as span:
         logger.info("bands service is getting reviews for band")
         band_uuid = uuid.UUID(id)
         band = Band(uuid=band_uuid)
         band.reviews = get_reviews(id)
         logger.info("bands service got reviews for band")
+
+        # Add trace_id to response headers
+        trace_id = format(span.get_span_context().trace_id, "032x")
+        response.headers["trace-id"] = trace_id
 
         return band

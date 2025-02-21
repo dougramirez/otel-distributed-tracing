@@ -6,7 +6,7 @@ import httpx
 from otel.common import configure_logger, configure_tracer
 
 logger = configure_logger("client", "1.0.0")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 tracer = configure_tracer("client", "1.0.0")
 
 
@@ -44,4 +44,4 @@ with tracer.start_as_current_span("get_band") as span:
         logger.info("client received response from bands service API")
 
 print(json.dumps(band.json(), indent=4))
-print(f"http://localhost:3301/trace/{get_trace_id(span)}")
+print(f"http://localhost:3301/trace/{band.headers["trace-id"]}")
