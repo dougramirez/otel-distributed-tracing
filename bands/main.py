@@ -10,6 +10,7 @@ from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapProp
 from pydantic import BaseModel
 
 from otel.common import configure_logger, configure_tracer
+from reviews.main import Review
 
 logger = configure_logger("bands-api", "1.0.0")
 logger.setLevel(logging.DEBUG)
@@ -21,18 +22,18 @@ app = FastAPI()
 class Band(BaseModel):
     uuid: UUID | None = uuid4()
     name: str | None = "Fugazi"
-    reviews: list | None = []
+    reviews: list[Review] | None = []
     created: datetime | None = datetime.now()
 
 
-def debugging():
+def debugging() -> None:
     logger.debug("bands service debugging() method called")
     sleep(5)
 
 
-def get_reviews(band_id: str) -> list:
+def get_reviews(band_id: str) -> list[Review]:
     with tracer.start_as_current_span("get_reviews"):
-        carrier = {}
+        carrier: dict[str, str] = {}
         TraceContextTextMapPropagator().inject(carrier)
         headers = carrier
         debugging()

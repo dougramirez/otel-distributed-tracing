@@ -5,13 +5,15 @@ from opentelemetry._logs import set_logger_provider
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.metrics import Meter
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-from opentelemetry.sdk.metrics import Meter, MeterProvider
+from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.trace import Tracer
 
 
 def create_resource(name: str, version: str) -> Resource:
@@ -47,11 +49,10 @@ def configure_meter(name: str, version: str) -> Meter:
 
 # See the Python Acquire Tracer docs for more details
 # https://opentelemetry.io/docs/languages/python/instrumentation/#acquire-tracer
-def configure_tracer(name: str, version: str) -> trace:
+def configure_tracer(name: str, version: str) -> Tracer:
     resource = create_resource(name, version)
-    trace.set_tracer_provider(TracerProvider(resource=resource))
-    trace.get_tracer_provider().add_span_processor(
-        BatchSpanProcessor(OTLPSpanExporter())
-    )
+    tracer_provider = TracerProvider(resource=resource)
+    trace.set_tracer_provider(tracer_provider)
+    tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
 
     return trace.get_tracer(name)
