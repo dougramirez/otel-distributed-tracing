@@ -2,6 +2,7 @@ import json
 import logging
 
 import httpx
+from opentelemetry.trace import Span
 
 from otel.common import configure_logger, configure_tracer
 
@@ -10,19 +11,19 @@ logger.setLevel(logging.INFO)
 tracer = configure_tracer("client", "1.0.0")
 
 
-def get_trace_id(span) -> str:
+def get_trace_id(span: Span) -> str:
     trace_id = format(span.get_span_context().trace_id, "032x")
 
     return trace_id
 
 
-def get_span_id(span) -> str:
+def get_span_id(span: Span) -> str:
     span_id = format(span.get_span_context().span_id, "016x")
 
     return span_id
 
 
-def create_headers(span) -> str:
+def create_headers(span: Span) -> dict[str, str]:
     version = "00"
     trace_id = get_trace_id(span)
     span_id = get_span_id(span)
@@ -32,8 +33,8 @@ def create_headers(span) -> str:
     return headers
 
 
-with tracer.start_as_current_span("get_band") as span:
-    headers = create_headers(span)
+with tracer.start_as_current_span("get_band") as span:  # type: ignore
+    headers = create_headers(span)  # type: ignore
     with httpx.Client() as client:
         logger.info("client is calling bands service API")
         band = client.get(
@@ -44,4 +45,4 @@ with tracer.start_as_current_span("get_band") as span:
         logger.info("client received response from bands service API")
 
 print(json.dumps(band.json(), indent=4))
-print(f"http://localhost:3301/trace/{band.headers["trace-id"]}")
+print(f"http://localhost:3301/trace/{band.headers['trace-id']}")

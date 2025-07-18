@@ -74,19 +74,18 @@ Please familiarize yourself with the W3C's [Privacy Considerations](https://www.
 
 ## Setup
 
-Make sure you have Docker installed as that will be needed to host an APM, such as SigNoz.
+Make sure you have `uv` and Docker installed as that will be needed to host an APM, such as SigNoz.
 
 ```sh
-python3 -m venv .venv
+uv venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip3 install black
-pip3 install isort
-pip3 install fastapi
-pip3 install uvicorn
-pip3 install opentelemetry-sdk
-pip3 install opentelemetry-exporter-otlp-proto-grpc
-pip3 install httpx
+uv pip install ruff
+uv pip install fastapi
+uv pip install uvicorn
+uv pip install opentelemetry-sdk
+uv pip install opentelemetry-exporter-otlp-proto-grpc
+uv pip install httpx
 ```
 
 ### SigNoz

@@ -23,13 +23,13 @@ class Review(BaseModel):
     created: datetime | None = datetime.now()
 
 
-def debugging():
+def debugging() -> None:
     logger.debug("reviews service debugging() method called")
     sleep(random())
 
 
-def get_reviews_by_band_id(band_id: UUID) -> list:
-    reviews = []
+def get_reviews_by_band_id(band_id: str) -> list[Review]:
+    reviews: list[Review] = []
     with tracer.start_as_current_span("get_reviews_by_band_id"):
         number_of_reviews = randint(1, 20)
 
